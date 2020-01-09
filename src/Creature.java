@@ -468,7 +468,6 @@ public abstract class Creature implements Entity, Runnable {
     */
     protected boolean moveForward() {
         final Direction d = getDirection();
-
         if (simulator.move(this, 1)) {
             // To support teleporters and wrapping boards, don't
             // assume that moving forward updated the position to
@@ -479,7 +478,7 @@ public abstract class Creature implements Entity, Runnable {
             return false;
         }
     }
-
+   
 
     /** Call to move your creature backward 1 square without changing
         its facing direction.  If the creature is blocked, it will not
