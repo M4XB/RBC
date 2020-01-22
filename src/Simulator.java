@@ -217,7 +217,7 @@ public final class Simulator implements javax.swing.Icon {
         automatically converted into an Apple (killed).  Because the
         garbage collector can run and slow a creature unreasonable on
         one turn, this must be at least 0.1 seconds. */
-    final static public long KILL_TIME    = (long)(0.25 * SECONDS);
+    static public long KILL_TIME    = (long)(0.25 * SECONDS);
 
     // All costs are in nanoseconds.  It is worth turning around if a
     // creature plans to move backwards more than three consecutive
@@ -810,7 +810,14 @@ public final class Simulator implements javax.swing.Icon {
             (NS_TIME_LIMIT > KILL_TIME * 20) : 
         "MZ_TIME_LIMIT or GENERAL_TIME_LIMIT is too short--creatures could " + 
             "just stall to force a loss with minority.";
-
+        
+            boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
+       	         getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+       
+       if (isDebug) {
+			KILL_TIME = Long.MAX_VALUE;
+		}    
+            
         if (mapFilename.startsWith("mz_")) {
             TIME_LIMIT = MZ_TIME_LIMIT;
         } else {

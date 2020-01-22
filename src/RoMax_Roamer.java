@@ -4,9 +4,14 @@ import java.awt.* ;
 /** A rover that looks before it moves. */
 public class RoMax_Roamer extends Creature {
 	
-	// array containing map data
+	// array containing static obstacles
 	private int[][] staticMap; 
+	
+	// array containing rover positions
 	private int[][] roverMap; 
+	
+
+	
 	
     @Override
 	public void run() {
@@ -23,15 +28,15 @@ public class RoMax_Roamer extends Creature {
     	// display map
     	printOutMap(staticMap, mh, mw);
     	
-    	//observe roamer position
-        Observation self = observeSelf();
-        
         while (true) {
         	
-        	// show Rover position
-            System.out.println("roamer is at " + " x=" + self.position.y +" y=" + self.position.x);
-            roverMap[self.position.y][self.position.x] = 1;
+        	//observe roamer position
+            Observation self = observeSelf();
         	
+        	// show Rover position
+            System.out.println("roamer is at " + " x=" + self.position.x +" y=" + self.position.y);
+            roverMap[self.position.y][self.position.x] = 1;
+     	
         	//observe space in front
         	Observation obs = observe()[0];
         	
@@ -42,6 +47,7 @@ public class RoMax_Roamer extends Creature {
             if (obs.type == Type.WALL) {
             	staticMap[obs.position.y][obs.position.x] = 1;
             }
+            
             // display static Maps
             printOutMap(staticMap, mh, mw);
             
@@ -58,8 +64,10 @@ public class RoMax_Roamer extends Creature {
             		
                     // attack unobserved obstacle
                     attack();
-                    break;
                 }
+            	else {
+
+            	}
             }
             
             // if enemy is observed
@@ -71,22 +79,50 @@ public class RoMax_Roamer extends Creature {
             
             // after arriving at observed position, change direction
             System.out.println("turning right");
+            
+            // check for viable directions
+            
+            	// don't move into a wall
+            
+            
+            	// if other options exists don't go in already explored regions
+            
             turnRight();
         }
     }
     
     
+    
+    
+    
+    
     //Prints out up-to-date map in the console
     private void printOutMap(int map[][], int height, int width) {
-    	for (int i=0; i<height; i++) {
-    		for (int y=0; y<width; y++) {
-
-    			System.out.print(map[i][y]);
+    	for (int y=0; y < height; y++) {
+    		for (int x=0; x<width; x++) {
+    			
+    			// show previous rover positions on map
+    			if (roverMap[y][x] == 0) {
+    				System.out.print(map[y][x]);
+    			}
+    			else {
+    				System.out.print("X");
+    			}
     			System.out.print(" ");
     		}
-    		System.out.println();
-    	}
+			System.out.println();
+    	}	
     }
+    
+    //
+	Direction currentDir = getDirection();
+	Direction targetDir;
+    private void rotate(Direction targetDir) {
+    	if (currentDir == targetDir) {
+    	}
+    	else
+    }
+    
     
     @Override
 	public String getAuthorName() {
