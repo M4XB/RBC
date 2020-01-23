@@ -12,12 +12,12 @@ public class RoMax_Roamer extends Creature {
     	 Dimension mapSize = getMapDimensions();
     	map = new int[mapSize.height][mapSize.width];
     	//printOutMap(mapSize.height, mapSize.width);
-    	
-    	if (mapSize.height <15 && mapSize.width < 15) {
+    	easyLogic();
+    	/*if (mapSize.height <15 && mapSize.width < 15) {
     		easyLogic();
     	}else {
     		complexAlgorithm();
-    	}   
+    	}*/   
     }
     
     private void easyLogic() {
@@ -30,6 +30,7 @@ public class RoMax_Roamer extends Creature {
     	while(true) {
     		obs = observe()[0];
     		if (obs.classId == TREASURE_CLASS_ID) {
+    			moveForward(distance(obs.position)-1);
     			attack();
     		}
     		if (moveForward()) {
@@ -41,14 +42,25 @@ public class RoMax_Roamer extends Creature {
         			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
         				turnRight();
         			}
-    			else if (obs.classId == WALL_CLASS_ID && distance(obs.position) > 1) {
-    				moveForward(1);
-        		}
-    			}else {
+    			}else if (obs.classId == TREASURE_CLASS_ID && distance(obs.position) > 1) {
+    				
+        		}else if (obs.classId == WALL_CLASS_ID && distance(obs.position) > 1) {
+        			moveForward(1);
+        		}else {
     				turnLeft();
     			}
     		}else {
-    			turnRight();
+    			turnLeft();
+    			obs = observe()[0];
+    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
+    				moveForward(1);
+    			}else {
+    				turnLeft();
+    				turnLeft();
+    				if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
+        				moveForward(1);
+        			}
+    			}
     		}
     		
     	}
