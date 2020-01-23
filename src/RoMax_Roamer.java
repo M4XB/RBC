@@ -10,8 +10,15 @@ public class RoMax_Roamer extends Creature {
 	// array containing rover positions
 	private int[][] roverMap; 
 	
-
+	// observe roamer position
+    Observation self;
+    Observation obs;
 	
+    // report roamer position
+    public void reportRoverPosition() {
+    	self = observeSelf();
+    	roverMap[self.position.y][self.position.x] = 1;
+    };
 	
     @Override
 	public void run() {
@@ -28,17 +35,16 @@ public class RoMax_Roamer extends Creature {
     	// display map
     	printOutMap(staticMap, mh, mw);
     	
+    	
         while (true) {
         	
-        	//observe roamer position
-            Observation self = observeSelf();
-        	
+        	// get rover position
+        	reportRoverPosition();
         	// show Rover position
             System.out.println("roamer is at " + " x=" + self.position.x +" y=" + self.position.y);
-            roverMap[self.position.y][self.position.x] = 1;
-     	
+        	
         	//observe space in front
-        	Observation obs = observe()[0];
+        	obs = observe()[0];
         	
             // save & log observed position
             System.out.println("observed " + obs.type + " at" + " x=" + obs.position.y +" y=" + obs.position.x);
@@ -57,6 +63,8 @@ public class RoMax_Roamer extends Creature {
            
             // Move until the far edge of observed position
             for (int i = 0; i < d; ++i) {
+            	
+            	reportRoverPosition();
                 
             	// if something stops the movement before arrived at observed position
             	if (! moveForward()) {
@@ -65,9 +73,6 @@ public class RoMax_Roamer extends Creature {
                     // attack unobserved obstacle
                     attack();
                 }
-            	else {
-
-            	}
             }
             
             // if enemy is observed
@@ -84,44 +89,50 @@ public class RoMax_Roamer extends Creature {
             
             	// don't move into a wall
             
-            
             	// if other options exists don't go in already explored regions
-            
             turnRight();
         }
     }
-    
-    
-    
-    
-    
-    
-    //Prints out up-to-date map in the console
+
+	//Prints out up-to-date map in the console
     private void printOutMap(int map[][], int height, int width) {
     	for (int y=0; y < height; y++) {
     		for (int x=0; x<width; x++) {
     			
-    			// show previous rover positions on map
-    			if (roverMap[y][x] == 0) {
-    				System.out.print(map[y][x]);
+     			if (roverMap[y][x] == 0) {
+	    			
+     				switch(map[y][x]) {
+	    			
+	    			case 0:
+	    				// EMPTY
+	    				System.out.print("?");
+	    				break;
+	    			case 1:
+	    				// WALL
+	    				System.out.print("#");
+	    				break;
+	    			};
     			}
     			else {
-    				System.out.print("X");
+        			// show previous rover positions on map
+    				System.out.print("*");
     			}
     			System.out.print(" ");
     		}
 			System.out.println();
     	}	
-    }
+    };
     
-    //
-	Direction currentDir = getDirection();
-	Direction targetDir;
-    private void rotate(Direction targetDir) {
-    	if (currentDir == targetDir) {
-    	}
-    	else
-    }
+    // turn rover towards a given direction
+	//Direction currentDir = getDirection();
+	//Direction targetDir;
+    //private void rotate(Direction targetDir) {
+    //	if (currentDir == targetDir) {	
+    	//}
+    	//else {
+	//
+    //	}
+    //}
     
     
     @Override
