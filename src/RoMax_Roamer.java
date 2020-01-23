@@ -25,7 +25,7 @@ public class RoMax_Roamer extends Creature {
     	if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
     		turnLeft();	
     	}else {
-    		moveForward(1);
+    		moveForward(distance(obs.position)-1);
     	}
     	while(true) {
     		obs = observe()[0];
