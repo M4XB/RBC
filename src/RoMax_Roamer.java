@@ -62,7 +62,6 @@ public class RoMax_Roamer extends Creature {
         			}
     			}
     		}
-    		
     	}
     }
     
@@ -114,7 +113,7 @@ public class RoMax_Roamer extends Creature {
                     break;
                 }
                 //Schreibt die abgelaufenen Stellen in die Map
-                //Observation self = observeSelf();
+                Observation self = observeSelf();
             }
             
             if (isEnemy(obs)) {
@@ -133,7 +132,6 @@ public class RoMax_Roamer extends Creature {
     		System.out.println();
     	}
     }
-    
     
     private void enemySight(Observation enemy){	
     	int enemyDistance = distance(enemy.position);
