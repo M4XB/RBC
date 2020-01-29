@@ -22,10 +22,12 @@ public class RoMax_Roamer extends Creature {
     
     private void easyLogic() {
     	Observation obs = observe()[0];
+    	
     	if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
     		turnLeft();	
     	}else {
     		moveForward(distance(obs.position)-1);
+    		
     	}
     	while(true) {
     		obs = observe()[0];
@@ -64,6 +66,8 @@ public class RoMax_Roamer extends Creature {
     		}
     	}
     }
+    
+    private int
     
     private void complexAlgorithm() {
     	int wallCount = 0;
