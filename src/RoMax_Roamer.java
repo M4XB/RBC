@@ -1,18 +1,31 @@
 import java.awt.* ;
+import java.io.Console;
 
 /** A rover that looks before it moves. */
 
 
 public class RoMax_Roamer extends Creature {
 	
-	private int[][] map; 
+	// set this to false to disable extended console logging & save resources
+	private boolean debugMode = true;
+	
+	private int[][] staticMap;
+	private int[][] roverMap;
+	
+	int mapWidth;
+	int mapHeight;
+	
+	Observation obs;
+	Observation self;
 	
     @Override
 	public void run() {
-    	 Dimension mapSize = getMapDimensions();
-    	map = new int[mapSize.height][mapSize.width];
-    	//printOutMap(mapSize.height, mapSize.width);
+    	//console.clear();
+    	mapGen();
+    	printOutMap();
+    	
     	easyLogic();
+    	
     	/*if (mapSize.height <15 && mapSize.width < 15) {
     		easyLogic();
     	}else {
@@ -20,13 +33,46 @@ public class RoMax_Roamer extends Creature {
     	}*/   
     }
     
+    // debug logger
+    public void log(String msg) {
+    	if (debugMode) {
+    	System.out.println(msg);
+    	}
+    }
+    
+    // generates maps, sets global map size
+    private void mapGen() {
+    	Dimension mapSize = getMapDimensions();
+    	mapWidth = mapSize.width;
+    	mapHeight = mapSize.height;
+    	staticMap = new int[mapHeight][mapWidth];
+    	roverMap = new int[mapHeight][mapWidth];
+    }
+    
+    // saves current rover pos in map
+    private void reportRoverPos() {
+		self = observeSelf();
+		roverMap[self.position.y][self.position.x] = 1;
+		log("roamer ist at " + " x=" + self.position.x + "y=" + self.position.y);
+	}
+    
+    //Einfache Logik
+    //Nach dem Printip linke Hand an die Wand
+    //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen
     private void easyLogic() {
-    	Observation obs = observe()[0];
+    	obs = observe()[0];
     	if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+    		reportRoverPos();
     		turnLeft();	
     	}else {
-    		moveForward(distance(obs.position)-1);
+    		
+    		for (int d=0; d <distance(obs.position)-1; d++) {
+    			reportRoverPos();
+    			moveForward(1);
+    		}
+    		//moveForward(distance(obs.position)-1);
     	}
+    	
     	while(true) {
     		obs = observe()[0];
     		if (obs.classId == TREASURE_CLASS_ID) {
@@ -34,6 +80,7 @@ public class RoMax_Roamer extends Creature {
     			attack();
     		}
     		if (moveForward()) {
+    			reportRoverPos();
     			turnLeft();
     			obs = observe()[0];
     			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
@@ -46,24 +93,30 @@ public class RoMax_Roamer extends Creature {
     				
         		}else if (obs.classId == WALL_CLASS_ID && distance(obs.position) > 1) {
         			moveForward(1);
+        			reportRoverPos();
         		}else {
     				turnLeft();
     			}
     		}else {
+    			reportRoverPos();
     			turnLeft();
     			obs = observe()[0];
     			if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
     				moveForward(1);
+    				reportRoverPos();
     			}else {
+    				reportRoverPos();
     				turnLeft();
     				turnLeft();
     				if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
         				moveForward(1);
+        				reportRoverPos();
         			}
     			}
     		}
     	}
     }
+    
     
     private void complexAlgorithm() {
     	int wallCount = 0;
@@ -124,10 +177,26 @@ public class RoMax_Roamer extends Creature {
     }
     
     //Prints out up-to-date map in the console
-    private void printOutMap(int height, int width) {
-    	for (int i=0; i<height; i++) {
-    		for (int y=0; y<width; y++) {
-    			System.out.print(map[i][y] + " ");
+    private void printOutMap() {
+    	for (int y=0; y<mapHeight; y++) {
+    		for (int x=0; x<mapWidth; x++) {
+    			
+    			if (roverMap[y][x] == 0) {
+    				switch (staticMap[y][x]) {
+    				case 0:
+    					// EMPTY
+    					System.out.print("?");
+    					break;
+    				case 1:
+    					// WALL
+    					System.out.print("?");
+    					break;
+    				}
+    			} 
+    			else {
+					System.out.print("*");
+    			}
+    			System.out.print(" ");
     		}
     		System.out.println();
     	}
