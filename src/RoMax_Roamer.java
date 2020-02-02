@@ -7,7 +7,7 @@ import java.io.Console;
 public class RoMax_Roamer extends Creature {
 	
 	// set this to false to disable extended console logging & save resources
-	private boolean debugMode = true;
+	private boolean debugMode = false;
 	
 	private int[][] staticMap;
 	private int[][] roverMap;
@@ -20,11 +20,12 @@ public class RoMax_Roamer extends Creature {
 	
     @Override
 	public void run() {
-    	//console.clear();
+    	
     	mapGen();
     	printOutMap();
     	
-    	easyLogic();
+    	//stupidLogic();
+    	//easyLogic();
     	
     	/*if (mapSize.height <15 && mapSize.width < 15) {
     		easyLogic();
@@ -56,17 +57,16 @@ public class RoMax_Roamer extends Creature {
 		log("roamer ist at " + " x=" + self.position.x + "y=" + self.position.y);
 	}
     
-    //Einfache Logik
-    //Nach dem Printip linke Hand an die Wand
-    //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen
-    private void easyLogic() {
-    	obs = observe()[0];
-    	if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+   
+    private void stupidLogic() {
+    	Obstacle obstacle = new Obstacle();
+    	obstacle = detection();
+    	if (isWallInFrontOfYou(obstacle)) {
     		reportRoverPos();
     		turnLeft();	
     	}else {
     		
-    		for (int d=0; d <distance(obs.position)-1; d++) {
+    		for (int d=0; d <obstacle.getDistance()-1; d++) {
     			reportRoverPos();
     			moveForward(1);
     		}
@@ -74,24 +74,88 @@ public class RoMax_Roamer extends Creature {
     	}
     	
     	while(true) {
-    		obs = observe()[0];
-    		if (obs.classId == TREASURE_CLASS_ID) {
-    			moveForward(distance(obs.position)-1);
+    		obstacle = detection();
+    		if (seeTreasure(obstacle)) {
+    			moveForward(obstacle.getDistance()-1);
     			attack();
     		}
     		if (moveForward()) {
     			reportRoverPos();
     			turnLeft();
-    			obs = observe()[0];
-    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+    			obstacle = detection();
+    			if (isWallInFrontOfYou(obstacle)) {
     				turnRight();
-        			obs = observe()[0];
-        			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+    				obstacle = detection();
+        			if (isWallInFrontOfYou(obstacle)) {
         				turnRight();
         			}
-    			}else if (obs.classId == TREASURE_CLASS_ID && distance(obs.position) > 1) {
+    			}else if (seeTreasure(obstacle)) {
     				
-        		}else if (obs.classId == WALL_CLASS_ID && distance(obs.position) > 1) {
+        		}else if (isWallAway(obstacle)) {
+        			moveForward(obstacle.getDistance()-1);
+        			reportRoverPos();
+        		}else {
+    				turnLeft();
+    			}
+    		}else {
+    			reportRoverPos();
+    			turnLeft();
+    			obstacle = detection();
+    			if (isWallAway(obstacle)) {
+    				moveForward(1);
+    				reportRoverPos();
+    			}else {
+    				reportRoverPos();
+    				turnLeft();
+    				turnLeft();
+    				if (isWallAway(obstacle)) {
+        				moveForward(1);
+        				reportRoverPos();
+        			}
+    			}
+    		}
+    	}
+    }
+    
+    
+    
+    
+    //Nach dem Prinzip linke Hand an die Wand
+    //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen    
+    private void easyLogic() {
+    	Obstacle obstacle = new Obstacle();
+    	obstacle = detection();
+    	if (isWallInFrontOfYou(obstacle)) {
+    		reportRoverPos();
+    		turnLeft();	
+    	}else {
+    		
+    		for (int d=0; d <obstacle.getDistance()-1; d++) {
+    			reportRoverPos();
+    			moveForward(1);
+    		}
+    		//moveForward(distance(obs.position)-1);
+    	}
+    	
+    	while(true) {
+    		obstacle = detection();
+    		if (seeTreasure(obstacle)) {
+    			moveForward(obstacle.getDistance()-1);
+    			attack();
+    		}
+    		if (moveForward()) {
+    			reportRoverPos();
+    			turnLeft();
+    			obstacle = detection();
+    			if (isWallInFrontOfYou(obstacle)) {
+    				turnRight();
+    				obstacle = detection();
+        			if (isWallInFrontOfYou(obstacle)) {
+        				turnRight();
+        			}
+    			}else if (seeTreasure(obstacle)) {
+    				
+        		}else if (isWallAway(obstacle)) {
         			moveForward(1);
         			reportRoverPos();
         		}else {
@@ -100,15 +164,15 @@ public class RoMax_Roamer extends Creature {
     		}else {
     			reportRoverPos();
     			turnLeft();
-    			obs = observe()[0];
-    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
+    			obstacle = detection();
+    			if (isWallAway(obstacle)) {
     				moveForward(1);
     				reportRoverPos();
     			}else {
     				reportRoverPos();
     				turnLeft();
     				turnLeft();
-    				if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
+    				if (isWallAway(obstacle)) {
         				moveForward(1);
         				reportRoverPos();
         			}
@@ -116,6 +180,41 @@ public class RoMax_Roamer extends Creature {
     		}
     	}
     }
+    
+    private Obstacle detection() {
+    	Obstacle obstacle = new Obstacle();
+    	obs = observe()[0];
+    	obstacle.setDistance(distance(obs.position));
+    	obstacle.setObstacleId(obs.classId);
+    	
+    	return obstacle;
+    }
+    
+    
+    private boolean isWallInFrontOfYou(Obstacle obstacle) {
+    	if (obstacle.getDistance() == 1 && obstacle.getObstacleId() == WALL_CLASS_ID) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    private boolean isWallAway(Obstacle obstacle) {
+    	if (obstacle.getDistance() > 1 ) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    private boolean seeTreasure(Obstacle obstacle) {
+    	if (obstacle.getObstacleId()  == TREASURE_CLASS_ID) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
     
     
     private void complexAlgorithm() {
@@ -178,27 +277,29 @@ public class RoMax_Roamer extends Creature {
     
     //Prints out up-to-date map in the console
     private void printOutMap() {
-    	for (int y=0; y<mapHeight; y++) {
-    		for (int x=0; x<mapWidth; x++) {
-    			
-    			if (roverMap[y][x] == 0) {
-    				switch (staticMap[y][x]) {
-    				case 0:
-    					// EMPTY
-    					System.out.print("?");
-    					break;
-    				case 1:
-    					// WALL
-    					System.out.print("?");
-    					break;
-    				}
-    			} 
-    			else {
-					System.out.print("*");
-    			}
-    			System.out.print(" ");
-    		}
-    		System.out.println();
+    	if (debugMode) {
+	    	for (int y=0; y<mapHeight; y++) {
+	    		for (int x=0; x<mapWidth; x++) {
+	    			
+	    			if (roverMap[y][x] == 0) {
+	    				switch (staticMap[y][x]) {
+	    				case 0:
+	    					// EMPTY
+	    					System.out.print("?");
+	    					break;
+	    				case 1:
+	    					// WALL
+	    					System.out.print("?");
+	    					break;
+	    				}
+	    			} 
+	    			else {
+						System.out.print("*");
+	    			}
+	    			System.out.print(" ");
+	    		}
+	    		System.out.println();
+	    	}
     	}
     }
     
@@ -216,11 +317,11 @@ public class RoMax_Roamer extends Creature {
         
     @Override
 	public String getAuthorName() {
-        return "Darwin SDK";
+        return "Roman and Max";
     }
 
     @Override
 	public String getDescription() {
-        return "A rover that looks before it moves.";
+        return "A Rover";
     }
 }
