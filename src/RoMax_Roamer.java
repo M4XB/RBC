@@ -57,6 +57,16 @@ public class RoMax_Roamer extends Creature {
 		log("roamer ist at " + " x=" + self.position.x + "y=" + self.position.y);
 	}
     
+    // checks if rover was at this position
+    private boolean isPositionKnown() {
+    	self = observeSelf();
+    	if (roverMap[self.position.y][self.position.x] == 1) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
    
     private void stupidLogic() {
     	Obstacle obstacle = new Obstacle();
@@ -123,12 +133,24 @@ public class RoMax_Roamer extends Creature {
     //Nach dem Prinzip linke Hand an die Wand
     //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen    
     private void easyLogic() {
+    	
+    	if (isPositionKnown()) {
+			turnRight();
+			moveForward();
+		}
+    	
+    	
+    	
     	Obstacle obstacle = new Obstacle();
     	obstacle = detection();
     	if (isWallInFrontOfYou(obstacle)) {
     		reportRoverPos();
     		turnLeft();	
-    	}else {
+    	}
+    	
+    	//Problem: in Maps wie 2012 führt das zu dem Problem, dass er danach im kreis läuft
+    	//TODO: Aus dem Kreis rausfinden, bzw. dann in andere Richtung gehen
+    	else {
     		
     		for (int d=0; d <obstacle.getDistance()-1; d++) {
     			reportRoverPos();
@@ -136,6 +158,8 @@ public class RoMax_Roamer extends Creature {
     		}
     		//moveForward(distance(obs.position)-1);
     	}
+    	
+    	//TODO: Fallunterscheidung: linke oder rechte Hand an die Wand
     	
     	while(true) {
     		obstacle = detection();
