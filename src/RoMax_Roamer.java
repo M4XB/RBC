@@ -25,7 +25,7 @@ public class RoMax_Roamer extends Creature {
     	printOutMap();
     	
     	//stupidLogic();
-    	//easyLogic();
+    	easyLogic();
     	
     	/*if (mapSize.height <15 && mapSize.width < 15) {
     		easyLogic();
