@@ -48,6 +48,18 @@ public class RoMax_Roamer extends Creature {
     	mapHeight = mapSize.height;
     	staticMap = new int[mapHeight][mapWidth];
     	roverMap = new int[mapHeight][mapWidth];
+    	
+    	
+    	//fill static map at edge with wall
+    	for (int y=0; y< mapHeight; y++) {
+    		staticMap[y][0] = 1;
+    		staticMap[y][mapWidth-1] = 1;
+    	}
+    	for (int x=0; x< mapWidth; x++) {
+    		staticMap[0][x] = 1;
+    		staticMap[mapHeight-1][x] = 1;
+    	}
+    	
     }
     
     // saves current rover pos in map
@@ -58,7 +70,7 @@ public class RoMax_Roamer extends Creature {
 	}
     
     // checks if rover was at this position
-    private boolean isPositionKnown() {
+    private boolean isNextPositionKnown() {
     	self = observeSelf();
     	if (roverMap[self.position.y][self.position.x] == 1) {
     		return true;
@@ -132,15 +144,7 @@ public class RoMax_Roamer extends Creature {
     
     //Nach dem Prinzip linke Hand an die Wand
     //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen    
-    private void easyLogic() {
-    	
-    	if (isPositionKnown()) {
-			turnRight();
-			moveForward();
-		}
-    	
-    	
-    	
+    private void easyLogic() {    	
     	Obstacle obstacle = new Obstacle();
     	obstacle = detection();
     	if (isWallInFrontOfYou(obstacle)) {
@@ -162,6 +166,7 @@ public class RoMax_Roamer extends Creature {
     	//TODO: Fallunterscheidung: linke oder rechte Hand an die Wand
     	
     	while(true) {
+    		
     		obstacle = detection();
     		if (seeTreasure(obstacle)) {
     			moveForward(obstacle.getDistance()-1);
@@ -301,29 +306,27 @@ public class RoMax_Roamer extends Creature {
     
     //Prints out up-to-date map in the console
     private void printOutMap() {
-    	if (debugMode) {
-	    	for (int y=0; y<mapHeight; y++) {
-	    		for (int x=0; x<mapWidth; x++) {
-	    			
-	    			if (roverMap[y][x] == 0) {
-	    				switch (staticMap[y][x]) {
-	    				case 0:
-	    					// EMPTY
-	    					System.out.print("?");
-	    					break;
-	    				case 1:
-	    					// WALL
-	    					System.out.print("?");
-	    					break;
-	    				}
-	    			} 
-	    			else {
-						System.out.print("*");
-	    			}
-	    			System.out.print(" ");
-	    		}
-	    		System.out.println();
-	    	}
+    	for (int y=0; y<mapHeight; y++) {
+    		for (int x=0; x<mapWidth; x++) {
+    			
+    			if (roverMap[y][x] == 0) {
+    				switch (staticMap[y][x]) {
+    				case 0:
+    					// EMPTY
+    					System.out.print("?");
+    					break;
+    				case 1:
+    					// WALL
+    					System.out.print("#");
+    					break;
+    				}
+    			} 
+    			else {
+					System.out.print("*");
+    			}
+    			System.out.print(" ");
+    		}
+    		System.out.println();
     	}
     }
     
