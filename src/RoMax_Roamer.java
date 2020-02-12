@@ -7,7 +7,7 @@ import java.io.Console;
 public class RoMax_Roamer extends Creature {
 	
 	// set this to false to disable extended console logging & save resources
-	private boolean debugMode = false;
+	private boolean debugMode = true;
 	
 	private int[][] staticMap;
 	private int[][] roverMap;
@@ -22,7 +22,7 @@ public class RoMax_Roamer extends Creature {
 	public void run() {
     	
     	mapGen();
-    	printOutMap();
+    	printMap();
     	
     	//stupidLogic();
     	easyLogic();
@@ -38,6 +38,7 @@ public class RoMax_Roamer extends Creature {
     public void log(String msg) {
     	if (debugMode) {
     	System.out.println(msg);
+    	System.out.println("");
     	}
     }
     
@@ -139,9 +140,6 @@ public class RoMax_Roamer extends Creature {
     	}
     }
     
-    
-    
-    
     //Nach dem Prinzip linke Hand an die Wand
     //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen    
     private void easyLogic() {    	
@@ -149,7 +147,7 @@ public class RoMax_Roamer extends Creature {
     	obstacle = detection();
     	if (isWallInFrontOfYou(obstacle)) {
     		reportRoverPos();
-    		turnLeft();	
+    		turnRight();	
     	}
     	
     	//Problem: in Maps wie 2012 führt das zu dem Problem, dass er danach im kreis läuft
@@ -160,6 +158,7 @@ public class RoMax_Roamer extends Creature {
     			reportRoverPos();
     			moveForward(1);
     		}
+    		turnRight();
     		//moveForward(distance(obs.position)-1);
     	}
     	
@@ -215,7 +214,9 @@ public class RoMax_Roamer extends Creature {
     	obs = observe()[0];
     	obstacle.setDistance(distance(obs.position));
     	obstacle.setObstacleId(obs.classId);
-    	
+    	printMap();
+    	//TODO: change to classType
+    	staticMap[obs.position.y][obs.position.x] = 1;
     	return obstacle;
     }
     
@@ -255,7 +256,7 @@ public class RoMax_Roamer extends Creature {
             
             //Schreibt in Map den Typ des Objektes auf das geschaut wird
             //map[obs.position.y][obs.position.x] = obs.classId;
-            //printOutMap(mapSize.height, mapSize.width);
+            //printMap(mapSize.height, mapSize.width);
             int d = distance(obs.position) - 1;
             if (d == 0) turnRight();
             // Move until the far edge
@@ -305,7 +306,7 @@ public class RoMax_Roamer extends Creature {
     }
     
     //Prints out up-to-date map in the console
-    private void printOutMap() {
+    private void printMap() {
     	for (int y=0; y<mapHeight; y++) {
     		for (int x=0; x<mapWidth; x++) {
     			

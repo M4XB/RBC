@@ -1,0 +1,63 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Map Spyrus",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_spyrus RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "Map 1",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_1 RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "Map 2012",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_2012 RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "Map Pacman",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_pacman RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "Map Spyrus 3",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_spyrus3 RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "Map Aasch Pockets",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_aasch_pockets RoMax_Roamer"
+        }
+    ]
+}
