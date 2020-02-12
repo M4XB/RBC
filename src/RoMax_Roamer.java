@@ -80,6 +80,13 @@ public class RoMax_Roamer extends Creature {
     	}
     }
     
+    //checks if rover has run in a circle
+    private boolean haveRunInCircle() {
+    	boolean res;
+    	
+    	return res;
+    }
+    
    
     private void stupidLogic() {
     	Obstacle obstacle = new Obstacle();
@@ -307,6 +314,7 @@ public class RoMax_Roamer extends Creature {
     
     //Prints out up-to-date map in the console
     private void printMap() {
+    	System.out.println("");
     	for (int y=0; y<mapHeight; y++) {
     		for (int x=0; x<mapWidth; x++) {
     			
@@ -329,6 +337,7 @@ public class RoMax_Roamer extends Creature {
     		}
     		System.out.println();
     	}
+    	System.out.println("");
     }
     
     private void enemySight(Observation enemy){	
@@ -341,6 +350,8 @@ public class RoMax_Roamer extends Creature {
 		    moveForward();
 		}
     }
+    
+
     
         
     @Override
