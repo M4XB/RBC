@@ -1,11 +1,10 @@
 import java.awt.* ;
 import java.io.Console;
 
-
-/** A rover that looks before it moves. */
-
-
 public class RoMax_Roamer extends Creature {
+	
+	// set this to false to disable extended console logging & save resources
+	private boolean debugMode = true;
 	
 	// array containing static obstacles
 	private int[][] staticMap; 
@@ -26,9 +25,6 @@ public class RoMax_Roamer extends Creature {
     };
 	// set this to false to disable extended console logging & save resources
 	private boolean debugMode = false;
-	
-
-	
 	
     @Override
 	public void run() {
@@ -97,45 +93,39 @@ public class RoMax_Roamer extends Creature {
     	
        
     	mapGen();
-    	printOutMap();
+    	printMap();
     	
-    	//stupidLogic();
     	easyLogic();
+    	//stupidLogic();
+    	//complexAlgorithm();
     	
-    	/*if (mapSize.height <15 && mapSize.width < 15) {
-    		easyLogic();
-    	}else {
-    		complexAlgorithm();
-    	}*/   
     }
     
-    // debug logger
-    public void log(String msg) {
-    	if (debugMode) {
-    	System.out.println(msg);
+    // generates maps, sets global map size
+    private void mapGen() {
+    	Dimension mapSize = getMapDimensions();
+    	mapWidth = mapSize.width;
+    	mapHeight = mapSize.height;
+    	staticMap = new int[mapHeight][mapWidth];
+    	roverMap = new int[mapHeight][mapWidth];
+    	
+    	
+    	//fill static map at edge with wall
+    	for (int y=0; y< mapHeight; y++) {
+    		staticMap[y][0] = 1;
+    		staticMap[y][mapWidth-1] = 1;
     	}
-    }
-    
-
-    
-    // saves current rover pos in map
-    private void reportRoverPos() {
-		self = observeSelf();
-		roverMap[self.position.y][self.position.x] = 1;
-		log("roamer ist at " + " x=" + self.position.x + "y=" + self.position.y);
-	}
-    
-    // checks if rover was at this position
-    private boolean isPositionKnown() {
-    	self = observeSelf();
-    	if (roverMap[self.position.y][self.position.x] == 1) {
-    		return true;
-    	} else {
-    		return false;
+    	for (int x=0; x< mapWidth; x++) {
+    		staticMap[0][x] = 1;
+    		staticMap[mapHeight-1][x] = 1;
     	}
+    	
     }
     
-   
+    
+// Start Region "Main logic functions"
+    
+    //Created by mistake when making the simple logic
     private void stupidLogic() {
     	Obstacle obstacle = new Obstacle();
     	obstacle = detection();
@@ -195,37 +185,30 @@ public class RoMax_Roamer extends Creature {
     	}
     }
     
-    //Nach dem Prinzip linke Hand an die Wand
-    //Wenn der Schatz gesehen wird, wird auf diesen direkt gelaufen    
-    private void easyLogic() {
-    	
-    	if (isPositionKnown()) {
-			turnRight();
-			moveForward();
-		}
-    	
-
+  //Left hand on the wall principle    
+    private void easyLogic() {    	
     	Obstacle obstacle = new Obstacle();
     	obstacle = detection();
     	if (isWallInFrontOfYou(obstacle)) {
     		reportRoverPos();
-    		turnLeft();	
+    		turnRight();	
     	}
     	
-    	//Problem: in Maps wie 2012 f�hrt das zu dem Problem, dass er danach im kreis l�uft
-    	//TODO: Aus dem Kreis rausfinden, bzw. dann in andere Richtung gehen
+    	//TODO: Find way out of running in circles
     	else {
     		
     		for (int d=0; d <obstacle.getDistance()-1; d++) {
     			reportRoverPos();
     			moveForward(1);
     		}
+    		turnRight();
     		//moveForward(distance(obs.position)-1);
     	}
     	
-    	//TODO: Fallunterscheidung: linke oder rechte Hand an die Wand
+    	//TODO: choosing between left or right hand on wall
     	
     	while(true) {
+    		
     		obstacle = detection();
     		if (seeTreasure(obstacle)) {
     			moveForward(obstacle.getDistance()-1);
@@ -269,42 +252,7 @@ public class RoMax_Roamer extends Creature {
     	}
     }
     
-    private Obstacle detection() {
-    	Obstacle obstacle = new Obstacle();
-    	obs = observe()[0];
-    	obstacle.setDistance(distance(obs.position));
-    	obstacle.setObstacleId(obs.classId);
-    	
-    	return obstacle;
-    }
-    
-    
-    private boolean isWallInFrontOfYou(Obstacle obstacle) {
-    	if (obstacle.getDistance() == 1 && obstacle.getObstacleId() == WALL_CLASS_ID) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    private boolean isWallAway(Obstacle obstacle) {
-    	if (obstacle.getDistance() > 1 ) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    private boolean seeTreasure(Obstacle obstacle) {
-    	if (obstacle.getObstacleId()  == TREASURE_CLASS_ID) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    
-    
+    //unfinished
     private void complexAlgorithm() {
     	int wallCount = 0;
     	boolean moved = false;
@@ -312,9 +260,8 @@ public class RoMax_Roamer extends Creature {
             Observation obs = observe()[0];
             //System.out.println(obs);
             
-            //Schreibt in Map den Typ des Objektes auf das geschaut wird
             //map[obs.position.y][obs.position.x] = obs.classId;
-            //printOutMap(mapSize.height, mapSize.width);
+            //printMap(mapSize.height, mapSize.width);
             int d = distance(obs.position) - 1;
             if (d == 0) turnRight();
             // Move until the far edge
@@ -351,8 +298,6 @@ public class RoMax_Roamer extends Creature {
                     // Hit something unexpected!
                     attack();
                 }
-                //Schreibt die abgelaufenen Stellen in die Map
-                Observation self = observeSelf();
             }
             
             // if enemy is observed
@@ -361,35 +306,104 @@ public class RoMax_Roamer extends Creature {
             	System.out.println("Leeeeroy Jenkins");
                 attack();
             }
-        
-    //Prints out up-to-date map in the console
-    private void printOutMap() {
+        }
+    }
+    
+// End Region "Main logic functions"
+    
+       
+    
+// Start Region "Printing stuff to the console"
+    
+    //debug logger
+    public void log(String msg) {
     	if (debugMode) {
-	    	for (int y=0; y<mapHeight; y++) {
-	    		for (int x=0; x<mapWidth; x++) {
-	    			
-	    			if (roverMap[y][x] == 0) {
-	    				switch (staticMap[y][x]) {
-	    				case 0:
-	    					// EMPTY
-	    					System.out.print("?");
-	    					break;
-	    				case 1:
-	    					// WALL
-	    					System.out.print("?");
-	    					break;
-	    				}
-	    			} 
-	    			else {
-						System.out.print("*");
-	    			}
-	    			System.out.print(" ");
-	    		}
-	    		System.out.println();
-	    	}
+    	System.out.println(msg);
+    	System.out.println("");
     	}
     }
     
+    //Prints out up-to-date map in the console
+    private void printMap() {
+    	System.out.println("");
+    	for (int y=0; y<mapHeight; y++) {
+    		for (int x=0; x<mapWidth; x++) {
+    			
+    			if (roverMap[y][x] == 0) {
+    				switch (staticMap[y][x]) {
+    				case 0:
+    					// EMPTY
+    					System.out.print("?");
+    					break;
+    				case 1:
+    					// WALL
+    					System.out.print("#");
+    					break;
+    				}
+    			} 
+    			else {
+					System.out.print("*");
+    			}
+    			System.out.print(" ");
+    		}
+    		System.out.println();
+    	}
+    	System.out.println("");
+    }
+    
+    //saves current rover pos in map
+    private void reportRoverPos() {
+		self = observeSelf();
+		roverMap[self.position.y][self.position.x] = 1;
+		log("roamer ist at " + " x=" + self.position.x + "y=" + self.position.y);
+	}
+    
+ // End Region "Printing stuff to the console"
+
+
+// Start Region "Observing the area around the rover
+   
+    //Returns an object of the block the rover is looking at
+    //including the id and distance to the object
+    private Obstacle detection() {
+    	Obstacle obstacle = new Obstacle();
+    	obs = observe()[0];
+    	obstacle.setDistance(distance(obs.position));
+    	obstacle.setObstacleId(obs.classId);
+    	printMap();
+    	//TODO: change to classType
+    	staticMap[obs.position.y][obs.position.x] = 1;
+    	return obstacle;
+    }
+    
+    //checks if rover is standing in front of a wall
+    private boolean isWallInFrontOfYou(Obstacle obstacle) {
+    	if (obstacle.getDistance() == 1 && obstacle.getObstacleId() == WALL_CLASS_ID) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    //checks if a wall is more than 1 block away from rover
+    private boolean isWallAway(Obstacle obstacle) {
+    	if (obstacle.getDistance() > 1 ) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    //checks if rover is seeing the treasure
+    private boolean seeTreasure(Obstacle obstacle) {
+    	if (obstacle.getObstacleId()  == TREASURE_CLASS_ID) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    //checks if enemy is in range to attack
     private void enemySight(Observation enemy){	
     	int enemyDistance = distance(enemy.position);
 		if(enemyDistance == 2){
@@ -401,7 +415,28 @@ public class RoMax_Roamer extends Creature {
 		}
     }
     
-        
+    // checks if rover was at this position
+    private boolean isNextPositionKnown() {
+    	self = observeSelf();
+    	if (roverMap[self.position.y][self.position.x] == 1) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    //checks if rover has run in a circle
+    private boolean haveRunInCircle() {
+    	boolean res = false;
+    	
+    	return res;
+    }
+    
+// End Region "Observing the area around the rover
+    
+            
+// Start Region "Informations on Rover and Authors"
+    
     @Override
 	public String getAuthorName() {
         return "Roman and Max";
@@ -411,4 +446,7 @@ public class RoMax_Roamer extends Creature {
 	public String getDescription() {
         return "A Rover";
     }
+    
+// End Region "Informations on Rover and Authors"
+    
 }
