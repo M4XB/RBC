@@ -112,63 +112,54 @@ public class RoMax_Roamer extends Creature {
     
   //Left hand on the wall principle    
     private void easyLogic() {    	
-    	Obstacle obstacle = new Obstacle();
-    	obstacle = detection();
-    	if (isWallInFrontOfYou(obstacle)) {
-    		reportRoverPos();
-    		turnRight();	
-    	}
-    	
-    	//TODO: Find way out of running in circles
-    	else {
-    		
-    		for (int d=0; d <obstacle.getDistance()-1; d++) {
-    			reportRoverPos();
-    			moveForward(1);
-    		}
+    	Observation obs = observe()[0];
+    	if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
     		turnRight();
-    		//moveForward(distance(obs.position)-1);
+    		reportRoverPos();
+    	}else {
+    		moveForward(distance(obs.position)-1);
+    		turnRight();
+    		reportRoverPos();
     	}
-    	
-    	//TODO: choosing between left or right hand on wall
-    	
     	while(true) {
-    		
-    		obstacle = detection();
-    		if (seeTreasure(obstacle)) {
-    			moveForward(obstacle.getDistance()-1);
+    		obs = observe()[0];
+    		if (obs.classId == TREASURE_CLASS_ID) {
+    			moveForward(distance(obs.position)-1);
     			attack();
     		}
     		if (moveForward()) {
-    			reportRoverPos();
     			turnLeft();
-    			obstacle = detection();
-    			if (isWallInFrontOfYou(obstacle)) {
+    			reportRoverPos();
+    			obs = observe()[0];
+    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
     				turnRight();
-    				obstacle = detection();
-        			if (isWallInFrontOfYou(obstacle)) {
+    				reportRoverPos();
+        			obs = observe()[0];
+        			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
         				turnRight();
+        				reportRoverPos();
         			}
-    			}else if (seeTreasure(obstacle)) {
+    			}else if (obs.classId == TREASURE_CLASS_ID && distance(obs.position) > 1) {
     				
-        		}else if (isWallAway(obstacle)) {
+        		}else if (obs.classId == WALL_CLASS_ID && distance(obs.position) > 1) {
         			moveForward(1);
         			reportRoverPos();
         		}else {
     				turnLeft();
+    				reportRoverPos();
     			}
     		}else {
-    			reportRoverPos();
     			turnLeft();
-    			obstacle = detection();
-    			if (isWallAway(obstacle)) {
+    			reportRoverPos();
+    			obs = observe()[0];
+    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
     				moveForward(1);
     				reportRoverPos();
     			}else {
+    				turnLeft();
+    				turnLeft();
     				reportRoverPos();
-    				turnLeft();
-    				turnLeft();
-    				if (isWallAway(obstacle)) {
+    				if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
         				moveForward(1);
         				reportRoverPos();
         			}
