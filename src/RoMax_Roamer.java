@@ -3,7 +3,7 @@ import java.awt.* ;
 public class RoMax_Roamer extends Creature {
 	
 	// set this to false to disable extended console logging & save resources
-	private boolean debugMode = true;
+	private boolean debugMode = false;
 	
 	private int[][] staticMap;
 	private int[][] roverMap;
@@ -19,8 +19,8 @@ public class RoMax_Roamer extends Creature {
     	
     	mapGen();
     	printMap();
-    	
-    	easyLogic();
+
+		easyLogic();
     	//stupidLogic();
     	//complexAlgorithm();
     	
