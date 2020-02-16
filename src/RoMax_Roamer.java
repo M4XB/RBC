@@ -3,7 +3,7 @@ import java.awt.* ;
 public class RoMax_Roamer extends Creature {
 	
 	// set this to false to disable extended console logging & save resources
-	private boolean debugMode = true;
+	private boolean debugMode = false;
 	
 	private int[][] staticMap;
 	private int[][] roverMap;
@@ -21,8 +21,6 @@ public class RoMax_Roamer extends Creature {
     	printMap();
     	
     	easyLogic();
-    	//stupidLogic();
-    	//complexAlgorithm();
     	
     }
     
@@ -38,197 +36,134 @@ public class RoMax_Roamer extends Creature {
     	//fill static map at edge with wall
     	for (int y=0; y< mapHeight; y++) {
     		staticMap[y][0] = 1;
-    		staticMap[y][mapWidth-1] = 1;
+    		staticMap[y][mapWidth-1] = WALL_CLASS_ID;
     	}
     	for (int x=0; x< mapWidth; x++) {
     		staticMap[0][x] = 1;
-    		staticMap[mapHeight-1][x] = 1;
+    		staticMap[mapHeight-1][x] = WALL_CLASS_ID;
     	}
     	
     }
     
-    
-// Start Region "Main logic functions"
-    
-    //Created by mistake when making the simple logic
-    private void stupidLogic() {
-    	Obstacle obstacle = new Obstacle();
-    	obstacle = detection();
-    	if (isWallInFrontOfYou(obstacle)) {
-    		reportRoverPos();
-    		turnLeft();	
-    	}else {
-    		
-    		for (int d=0; d <obstacle.getDistance()-1; d++) {
-    			reportRoverPos();
-    			moveForward(1);
-    		}
-    		//moveForward(distance(obs.position)-1);
-    	}
-    	
-    	while(true) {
-    		obstacle = detection();
-    		if (seeTreasure(obstacle)) {
-    			moveForward(obstacle.getDistance()-1);
-    			attack();
-    		}
-    		if (moveForward()) {
-    			reportRoverPos();
-    			turnLeft();
-    			obstacle = detection();
-    			if (isWallInFrontOfYou(obstacle)) {
-    				turnRight();
-    				obstacle = detection();
-        			if (isWallInFrontOfYou(obstacle)) {
-        				turnRight();
-        			}
-    			}else if (seeTreasure(obstacle)) {
-    				
-        		}else if (isWallAway(obstacle)) {
-        			moveForward(obstacle.getDistance()-1);
-        			reportRoverPos();
-        		}else {
-    				turnLeft();
-    			}
-    		}else {
-    			reportRoverPos();
-    			turnLeft();
-    			obstacle = detection();
-    			if (isWallAway(obstacle)) {
-    				moveForward(1);
-    				reportRoverPos();
-    			}else {
-    				reportRoverPos();
-    				turnLeft();
-    				turnLeft();
-    				if (isWallAway(obstacle)) {
-        				moveForward(1);
-        				reportRoverPos();
-        			}
-    			}
-    		}
-    	}
-    }
-    
-  //Left hand on the wall principle    
+	//#region " Main logic functions"    
+	
+  	//Left hand on the wall principle    
     private void easyLogic() {    	
-    	Observation obs = observe()[0];
-    	if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+    	
+    	if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
     		turnRight();
-    		reportRoverPos();
     	}else {
-    		moveForward(distance(obs.position)-1);
+    		move(distance(obs.position)-1);
     		turnRight();
-    		reportRoverPos();
     	}
     	while(true) {
-    		obs = observe()[0];
-    		if (obs.classId == TREASURE_CLASS_ID) {
-    			moveForward(distance(obs.position)-1);
-    			attack();
-    		}
+    		
+    		//When the rover sees the treasure, its going to hit it
+    		seeTreasure();
     		if (moveForward()) {
-    			turnLeft();
     			reportRoverPos();
-    			obs = observe()[0];
-    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+    			turnLeft();
+    			
+    			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
     				turnRight();
-    				reportRoverPos();
-        			obs = observe()[0];
-        			if (obs.classId == WALL_CLASS_ID && distance(obs.position) == 1) {
+        			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
         				turnRight();
-        				reportRoverPos();
-        			}
-    			}else if (obs.classId == TREASURE_CLASS_ID && distance(obs.position) > 1) {
-    				
-        		}else if (obs.classId == WALL_CLASS_ID && distance(obs.position) > 1) {
-        			moveForward(1);
-        			reportRoverPos();
+        			}	
+        		}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        			move(1);
         		}else {
     				turnLeft();
-    				reportRoverPos();
     			}
     		}else {
     			turnLeft();
-    			reportRoverPos();
-    			obs = observe()[0];
-    			if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
-    				moveForward(1);
-    				reportRoverPos();
+    			if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    				move(1);
     			}else {
     				turnLeft();
     				turnLeft();
-    				reportRoverPos();
-    				if (obs.classId == WALL_CLASS_ID && distance(obs.position) != 1) {
-        				moveForward(1);
-        				reportRoverPos();
-        			}
     			}
     		}
     	}
     }
-    
-    //unfinished
-    private void complexAlgorithm() {
-    	int wallCount = 0;
-    	boolean moved = false;
-    	while (true) {    
-            Observation obs = observe()[0];
-            //System.out.println(obs);
-            
-            //map[obs.position.y][obs.position.x] = obs.classId;
-            //printMap(mapSize.height, mapSize.width);
-            int d = distance(obs.position) - 1;
-            if (d == 0) turnRight();
-            // Move until the far edge
-            for (int i = 0; i < d; ++i) {
-            	int obsId = obs.classId;
-            	if (!isEnemy(obs)) {
-            	
-            		moved = true;
-            	    wallCount = 0;
-            	    if(distance(obs.position) > 1){
-            		moveForward();
-            	    }else{
-            		turnRight();
-            	    }
-            	}else {
-            		switch (obsId) {
-            		case WALL_CLASS_ID:
-            			++wallCount;
-            			moved = true;
-            			if(distance(obs.position) > 1){
-            				moveForward();
-            			}else {
-            			    turnRight();
-            			}		
-            			break;
-            			
-            		case TREASURE_CLASS_ID:	
-            			attack();
-            			break;
-            		}
-            		if(!moved) enemySight(obs);
-            	}
-                if (! moveForward()) {
-                    // Hit something unexpected!
-                    attack();
-                    break;
-                }
-            }
-            
-            if (isEnemy(obs)) {
-                // Attack whatever we observed
-                attack();
-            }
-        }
+    //#endregion
+
+
+//#region "Observing the area around the rover"
+   
+    //Returns an object of th class the rover is looking at and fills static map
+    private Observation observeObject() {
+    	obs = observe()[0];
+    	staticMap[obs.position.y][obs.position.x] = obs.classId;
+    	return obs;
+    }
+	
+	//Returns an object of the current position of the rover
+    private Observation observateSelf() {
+    	self = observeSelf();
+    	return self;
     }
     
-// End Region "Main logic functions"
+    //checks if rover is standing in front of the object
+    private boolean isObjectInFrontOfYou(int classId) {
+		Observation observe = observeObject();
+		if (observe.classId == classId && distance(observe.position) == 1) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+	}
+	
+    //checks if rover is seeing the treasure
+    private void seeTreasure() {
+		Observation possibleTreasure = observeObject();
+    	if (possibleTreasure.classId  == TREASURE_CLASS_ID) {
+    		moveForward(distance(obs.position)-1);
+			attack();
+    	}
+    }
     
-       
+    //lets the rover move and updates the rover map
+    private void move(int distance) {
+    	for (int i = 0; i < distance; i++) {
+    		moveForward(1);
+        	reportRoverPos();
+    	}
+    }
     
-// Start Region "Printing stuff to the console"
+    //checks if enemy is in range to attack
+    private void enemyInSight(){	
+		Observation enemy = observeObject();
+    	int enemyDistance = distance(enemy.position);
+		if(enemyDistance == 2){
+			delay();
+		} else if(enemyDistance == 1){
+			attack();
+		}else{
+			moveForward();
+			reportRoverPos();
+		}
+    }
+    
+    //checks if rover was at the delivered position
+    private boolean isNextPositionKnown(Point position) {
+    	if (roverMap[position.y][position.x] == 1) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    //checks if rover has run in a circle
+    private boolean haveRunInCircle() {
+    	boolean res = false;
+    	
+    	return res;
+    }
+    
+//#endregion
+	
+
+//#region "Printing stuff to the console"
     
     //debug logger
     public void log(String msg) {
@@ -250,7 +185,7 @@ public class RoMax_Roamer extends Creature {
     					// EMPTY
     					System.out.print("?");
     					break;
-    				case 1:
+    				case WALL_CLASS_ID:
     					// WALL
     					System.out.print("#");
     					break;
@@ -268,89 +203,17 @@ public class RoMax_Roamer extends Creature {
     
     //saves current rover pos in map
     private void reportRoverPos() {
-		self = observeSelf();
+		self = observateSelf();
 		roverMap[self.position.y][self.position.x] = 1;
-		log("roamer ist at " + " x=" + self.position.x + "y=" + self.position.y);
+		if (debugMode){
+			log("roamer ist at " + " x=" + self.position.x + " y=" + self.position.y);
+			printMap();
+		}
 	}
     
- // End Region "Printing stuff to the console"
-
-
-// Start Region "Observing the area around the rover
-   
-    //Returns an object of the block the rover is looking at
-    //including the id and distance to the object
-    private Obstacle detection() {
-    	Obstacle obstacle = new Obstacle();
-    	obs = observe()[0];
-    	obstacle.setDistance(distance(obs.position));
-    	obstacle.setObstacleId(obs.classId);
-    	printMap();
-    	//TODO: change to classType
-    	staticMap[obs.position.y][obs.position.x] = 1;
-    	return obstacle;
-    }
-    
-    //checks if rover is standing in front of a wall
-    private boolean isWallInFrontOfYou(Obstacle obstacle) {
-    	if (obstacle.getDistance() == 1 && obstacle.getObstacleId() == WALL_CLASS_ID) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    //checks if a wall is more than 1 block away from rover
-    private boolean isWallAway(Obstacle obstacle) {
-    	if (obstacle.getDistance() > 1 ) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    //checks if rover is seeing the treasure
-    private boolean seeTreasure(Obstacle obstacle) {
-    	if (obstacle.getObstacleId()  == TREASURE_CLASS_ID) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    //checks if enemy is in range to attack
-    private void enemySight(Observation enemy){	
-    	int enemyDistance = distance(enemy.position);
-		if(enemyDistance == 2){
-	            delay();
-	        }else if(enemyDistance == 1){
-	            attack();
-	        }else{
-		    moveForward();
-		}
-    }
-    
-    // checks if rover was at this position
-    private boolean isNextPositionKnown() {
-    	self = observeSelf();
-    	if (roverMap[self.position.y][self.position.x] == 1) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
-    
-    //checks if rover has run in a circle
-    private boolean haveRunInCircle() {
-    	boolean res = false;
-    	
-    	return res;
-    }
-    
-// End Region "Observing the area around the rover
-    
+ //#endregion
             
-// Start Region "Informations on Rover and Authors"
+//#region "Informations on Rover and Authors"
     
     @Override
 	public String getAuthorName() {
@@ -362,6 +225,6 @@ public class RoMax_Roamer extends Creature {
         return "A Rover";
     }
     
-// End Region "Informations on Rover and Authors"
+//#endregion
     
 }
