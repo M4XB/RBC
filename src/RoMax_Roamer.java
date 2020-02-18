@@ -5,8 +5,10 @@ public class RoMax_Roamer extends Creature {
 	// set this to false to disable extended console logging & save resources
 	private boolean debugMode = false;
 	
-	private int[][] staticMap;
-	private int[][] roverMap;
+	// contains all static entities
+		private int[][] staticMap;
+		// contains rover and enemy positions
+		private int[][] mobileMap;
 	
 	int mapWidth;
 	int mapHeight;
@@ -30,22 +32,21 @@ public class RoMax_Roamer extends Creature {
     	mapWidth = mapSize.width;
     	mapHeight = mapSize.height;
     	staticMap = new int[mapHeight][mapWidth];
-    	roverMap = new int[mapHeight][mapWidth];
-    	
+    	mobileMap = new int[mapHeight][mapWidth];
     	
     	//fill static map at edge with wall
     	for (int y=0; y< mapHeight; y++) {
-    		staticMap[y][0] = 1;
+    		staticMap[y][0] = WALL_CLASS_ID;
     		staticMap[y][mapWidth-1] = WALL_CLASS_ID;
     	}
     	for (int x=0; x< mapWidth; x++) {
-    		staticMap[0][x] = 1;
+    		staticMap[0][x] = WALL_CLASS_ID;
     		staticMap[mapHeight-1][x] = WALL_CLASS_ID;
     	}
     	
     }
     
-	//#region " Main logic functions"    
+//#region " Main logic functions"    
 	
   	//Left hand on the wall principle    
     private void easyLogic() {    	
@@ -85,7 +86,7 @@ public class RoMax_Roamer extends Creature {
     		}
     	}
     }
-    //#endregion
+//#endregion
 
 
 //#region "Observing the area around the rover"
@@ -146,7 +147,7 @@ public class RoMax_Roamer extends Creature {
     
     //checks if rover was at the delivered position
     private boolean isNextPositionKnown(Point position) {
-    	if (roverMap[position.y][position.x] == 1) {
+    	if (mobileMap[position.y][position.x] == 1) {
     		return true;
     	} else {
     		return false;
@@ -161,7 +162,6 @@ public class RoMax_Roamer extends Creature {
     }
     
 //#endregion
-	
 
 //#region "Printing stuff to the console"
     
@@ -179,32 +179,43 @@ public class RoMax_Roamer extends Creature {
     	for (int y=0; y<mapHeight; y++) {
     		for (int x=0; x<mapWidth; x++) {
     			
-    			if (roverMap[y][x] == 0) {
+    			// if position previously unvisited by roamer
+    			if (mobileMap[y][x] == 0) {
+    				
     				switch (staticMap[y][x]) {
-    				case 0:
-    					// EMPTY
+    				case 0: // UNINITIALIZED_CLASS_ID
     					System.out.print("?");
     					break;
+    				case 1: // EMPTY_CLASS_ID 
+    					System.out.print(" ");
+    					break;
     				case WALL_CLASS_ID:
-    					// WALL
-    					System.out.print("#");
+    					System.out.print("X");
+    					break;
+    				case TREASURE_CLASS_ID:  
+    					System.out.print("S");
+    					break;
+    				default: // UNKNOWN ENTITY
+    					System.out.print("Ä");
     					break;
     				}
     			} 
     			else {
+    				// EMPTY POSITION, PREVIOUSLY VISITED BY ROAMER
 					System.out.print("*");
     			}
+    			// spaces between map tiles
     			System.out.print(" ");
-    		}
+    		} // new line in map
     		System.out.println();
-    	}
+    	} // empty line after map
     	System.out.println("");
     }
     
-    //saves current rover pos in map
+    //saves current rover position in map
     private void reportRoverPos() {
 		self = observateSelf();
-		roverMap[self.position.y][self.position.x] = 1;
+		mobileMap[self.position.y][self.position.x] = 1;
 		if (debugMode){
 			log("roamer ist at " + " x=" + self.position.x + " y=" + self.position.y);
 			printMap();
