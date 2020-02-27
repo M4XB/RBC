@@ -143,7 +143,59 @@ public class RoMax_Roamer extends Creature {
     		moveForward(1);
         	reportRoverPos();
     	}
-    }
+	}
+	
+	//lets Rover rotate in one cardinal direction
+	private void rotateRover(Direction wantedDirection){
+		self = observateSelf();
+		Direction selfDirection = self.direction;
+		//If rover is looking in the right Directions quit 
+		if (selfDirection ==  wantedDirection) return;
+		//Switch Case on direction of the rover
+		//Per Case inner Switch case on wanted Direction for less turnings
+		switch (selfDirection){
+			case NORTH:
+				switch (wantedDirection){
+					case EAST:
+						turnRight();
+					case SOUTH:
+						turnRight();
+						turnRight();
+					case WEST:
+						turnLeft();
+				}
+			case EAST:
+				switch (wantedDirection){
+					case NORTH:
+						turnLeft();
+					case SOUTH:
+						turnRight();
+					case WEST:
+						turnLeft();
+						turnLeft();
+				}
+			case SOUTH:
+				switch (wantedDirection){
+					case NORTH:
+						turnLeft();
+						turnLeft();
+					case EAST:
+						turnLeft();
+					case WEST:
+						turnRight();
+				}
+			case WEST:
+				switch (wantedDirection){
+					case NORTH:
+						turnRight();
+					case EAST:
+						turnLeft();
+					case SOUTH:
+						turnRight();
+						turnRight();
+				}
+		}
+	}
     
     //checks if enemy is in range to attack
     private void enemyInSight(){	
@@ -171,7 +223,7 @@ public class RoMax_Roamer extends Creature {
     //checks if rover has run in a circle
     private boolean haveRunInCircle() {
     	boolean res = false;
-    	
+    	 
     	return res;
     }
     

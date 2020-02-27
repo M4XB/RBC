@@ -58,6 +58,22 @@
             "mainClass": "Darwin",
             "projectName": "Darwin",
             "args": "-3D -nosecurity Maps/mz_aasch_pockets RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "CLS 1",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_cls_1 RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "CLS 2",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_cls_2 RoMax_Roamer"
         }
     ]
 }
