@@ -1,4 +1,5 @@
-import java.awt.* ;
+import java.awt.*;
+import Djikstra.*;
 
 public class RoMax_Roamer extends Creature {
 	
@@ -6,12 +7,17 @@ public class RoMax_Roamer extends Creature {
 	private boolean debugMode = false;
 	
 	// contains all static entities
-		private int[][] staticMap;
-		// contains rover and enemy positions
-		private int[][] mobileMap;
+	private int[][] staticMap;
+	// contains rover and enemy positions
+	private int[][] mobileMap;
+
+	private Algorithms algorithms = new Algorithms();
 	
 	int mapWidth;
 	int mapHeight;
+
+	int edgeCounter = 1;
+	int vertexCounter = 1;
 	
 	Observation obs;
 	Observation self;
@@ -21,8 +27,9 @@ public class RoMax_Roamer extends Creature {
     	
     	mapGen();
     	printMap();
-    	easyLogic();
-    	
+		easyLogic();
+		
+		
     }
     
     // generates maps, sets global map size
@@ -51,7 +58,7 @@ public class RoMax_Roamer extends Creature {
     private void easyLogic() { 
 		//turns around and checks if the rover    	
 		spinMyHeadRightRound();
-
+		reportRoverPos();
     	if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
     		turnRight();
     	}else {
@@ -112,7 +119,7 @@ public class RoMax_Roamer extends Creature {
     		return true;
     	} else {
     		return false;
-    	}
+		}
 	}
 	
     //checks if rover is seeing the treasure
