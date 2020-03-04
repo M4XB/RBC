@@ -217,7 +217,7 @@ public final class Simulator implements javax.swing.Icon {
         automatically converted into an Apple (killed).  Because the
         garbage collector can run and slow a creature unreasonable on
         one turn, this must be at least 0.1 seconds. */
-    final static public long KILL_TIME    = (long)(0.5 * SECONDS);
+    final static public long KILL_TIME    = (long)(5000000 * SECONDS);
 
     // All costs are in nanoseconds.  It is worth turning around if a
     // creature plans to move backwards more than three consecutive
@@ -227,7 +227,7 @@ public final class Simulator implements javax.swing.Icon {
     static public final long OBSERVE_COST       = 200000;
     /** @deprecated */
     @Deprecated
-	static public final long LOOK_COST          = OBSERVE_COST;
+    static public final long LOOK_COST          = OBSERVE_COST;
     static public final long ATTACK_COST        = 800000;
     static public final long TURN_COST          = 600000;
     static public final long MOVE_FORWARD_COST  = 400000;

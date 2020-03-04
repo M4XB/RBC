@@ -4,7 +4,7 @@ import Djikstra.*;
 public class RoMax_Roamer extends Creature {
 	
 	// set this to false to disable extended console logging & save resources
-	private boolean debugMode = false;
+	private boolean debugMode = true;
 	
 	// contains all static entities
 	private int[][] staticMap;
@@ -24,11 +24,11 @@ public class RoMax_Roamer extends Creature {
 	
     @Override
 	public void run() {
-    	
+		
     	mapGen();
     	printMap();
-		easyLogic();
-		
+		//easyLogic();
+		easyLogicMapUsing();
 		
     }
     
@@ -70,29 +70,19 @@ public class RoMax_Roamer extends Creature {
     		//When the rover sees the treasure, its going to hit it
     		seeTreasure();
     		if (moveForward()) {
-				reportRoverPos();
-				if (isWallLeft() == 1){
-					if (isWallFront() == 1){
-						turnRight();
-					} else{
-						if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
-							turnRight();
-						}
-					}
-				} else if (isWallLeft() == 0){
-					turnLeft();
-    				if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
-    					turnRight();
-        				if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
-        					turnRight();
-        				}	
-        			} else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
-        				move(1);
-        			}else {
-    					turnLeft();
-    				}
-				}
+    			reportRoverPos();
+    			turnLeft();
     			
+    			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    				turnRight();
+        			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        				turnRight();
+        			}	
+        		}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        			move(1);
+        		}else {
+    				turnLeft();
+    			}
     		}else {
     			turnLeft();
     			if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
@@ -103,7 +93,94 @@ public class RoMax_Roamer extends Creature {
     			}
     		}
     	}
-    }
+	}
+	
+	private void easyLogicMapUsing(){
+		//turns around and checks if the rover    	
+		spinMyHeadRightRound();
+		reportRoverPos();
+    	if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    		turnRight();
+    	}else {
+    		move(distance(obs.position)-1);
+    		turnRight();
+    	}
+    	while(true) {
+    		
+    		//When the rover sees the treasure, its going to hit it
+			seeTreasure();
+			
+    		if (isWallFront() == 1){ 						//direct in front
+				if (isWallLeft() == 1){ 				//direct in left of the rover
+					turnRight();
+					
+				} else if (isWallLeft() == 2){ 			//away from rover
+					turnLeft();
+				} else {								//unknown field before wall or no wall in map
+					turnLeft();
+					if (isWallFront() == 1){			//directin front
+						turnRight();
+					} else if (isWallFront() == 2){		//away from rover
+						move(1);
+					} else {							//unknown field before wall or no wall in map
+						if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+							turnRight();
+						}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+							move(1);
+						}else {
+							turnLeft();
+						}
+					}
+				}
+			} else if (isWallFront() == 2){					//away from rover
+
+				if (isWallLeft() == 1){						//direct in left of the rover
+					move(1);
+				} else if (isWallLeft() == 2){				//away from rover
+					turnLeft();
+				} else {									//unknown field before wall or no wall in map
+					turnLeft();
+						if (isWallFront() == 1){			//directin front
+							turnRight();
+						} else if (isWallFront() == 2){		//away from rover
+							move(1);
+						} else {							//unknown field before wall or no wall in map
+							if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+								turnRight();
+							}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+								move(1);
+							}else {
+								turnLeft();
+							}
+						}
+				}
+			} else{											//unknown field before wall or no wall in map
+				if (isObjectInFrontOfYou(WALL_CLASS_ID)){
+					if (isWallLeft() == 1){ 				//direct in left of the rover
+						turnRight();
+					} else if (isWallLeft() == 2){ 			//away from rover
+						turnLeft();
+					} else {								//unknown field before wall or no wall in map
+						turnLeft();
+						if (isWallFront() == 1){			//directin front
+							turnRight();
+						} else if (isWallFront() == 2){		//away from rover
+							move(1);
+						} else {							//unknown field before wall or no wall in map
+							if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+								turnRight();
+							}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+								move(1);
+							}else {
+								turnLeft();
+							}
+						}
+					}
+				}
+			}
+    	}
+	}
+
 //#endregion
 
 
@@ -213,89 +290,123 @@ public class RoMax_Roamer extends Creature {
 	}
 	
 	/**
-	 * Checks with the static map, if a wall is in front of the rover
-	 * @return 1 if Wall, 0 if unknown, 2 everything else
-	 */
-	private int isWallFront(){
-		observateSelf();
-		int res = 0;
-		switch (self.direction){
-			case NORTH:
-				if (staticMap[self.position.y-1][self.position.x] == WALL_CLASS_ID){
-					res = 1;
-				} else if(staticMap[self.position.y-1][self.position.x] == 0) {
-					res = 0;
-				} else{
-					res = 2;
-				}
-			case EAST:
-				if (staticMap[self.position.y][self.position.x+1] == WALL_CLASS_ID){
-					res = 1;
-				}else if (staticMap[self.position.y][self.position.x+1] == 0){
-					res = 0;
-				} else{
-					res = 2;
-				}
-			case SOUTH:
-				if (staticMap[self.position.y+1][self.position.x+1] == WALL_CLASS_ID){
-					res = 1;
-				} else if (staticMap[self.position.y+1][self.position.x] == 0){
-					res = 0;
-				} else{
-					res = 2;
-				}
-			case WEST:
-				if (staticMap[self.position.y][self.position.x-1] == WALL_CLASS_ID){
-					res = 1;
-				} else if (staticMap[self.position.y][self.position.x-1] == 0){
-					res = 0;
-				} else{
-					res = 2;
-				}
-		}
-		return res;
-	}
-
-	/**
 	 * Checks with the static map, if a wall is left of the rover
-	 * @return 1 if Wall, 0 if unknown, 2 everything else
+	 * @return 1 if Wall
+	 * @return 0 if unknown 
+	 * @return everything else
 	 */
 	private int isWallLeft(){
 		observateSelf();
 		int res = 0;
 		switch (self.direction){
 			case NORTH:
-				if (staticMap[self.position.y][self.position.x-1] == WALL_CLASS_ID){
-					res = 1;
-				} else if(staticMap[self.position.y][self.position.x-1] == 0) {
+				res = wallInDirection(Direction.WEST);
+			case EAST:
+				res = wallInDirection(Direction.NORTH);
+			case SOUTH:
+				res = wallInDirection(Direction.EAST);
+			case WEST:
+				res = wallInDirection(Direction.SOUTH);
+			default:
+			//Never happens
+		}
+		return res;
+	}
+
+	/**
+	 * Checks with the static map, if a wall is left of the rover
+	 * @return 1 if Wall
+	 * @return 0 if unknown 
+	 * @return everything else
+	 */
+	private int isWallFront(){
+		observateSelf();
+		return wallInDirection(self.direction);
+	}
+
+	/**
+	 * Determines if theres a Wall in the given direction from the rover with no unkown spaces in between in the map
+	 * @param direction Direction
+	 * @return 0 if there is no wall, or unkown spaces in between, 1 if the wall is next to the rover,  2 if there is a wall, but with space
+	 */
+	private int wallInDirection(Direction direction){
+		observateSelf();
+		int res = 0;
+		switch (direction){
+			case NORTH:
+				//If the first first field is unkown, return 0
+				if(staticMap[self.position.y-1][self.position.x] == 0){
 					res = 0;
-				} else{
-					res = 2;
+				//If the first first field is a wall, return 1
+				} else if(staticMap[self.position.y-1][self.position.x] == WALL_CLASS_ID){
+					res = 1;
+				}
+				//Loop over all fields in the north of the rover
+				//If an unkown field is found before a wall return 0
+				//If a wall is found before an unkown field return 2 
+				for(int tmpY = self.position.y-1; tmpY >=1; tmpY--){
+					if (staticMap[tmpY][self.position.x] == 0){
+						res = 0;
+					} else if (staticMap[tmpY][self.position.x] == WALL_CLASS_ID ){
+						res = 2;
+					}
 				}
 			case EAST:
-				if (staticMap[self.position.y-1][self.position.x] == WALL_CLASS_ID){
-					res = 1;
-				}else if (staticMap[self.position.y-1][self.position.x] == 0){
+				//If the first first field is unkown, return 0
+				if(staticMap[self.position.y][self.position.x+1] == 0){
 					res = 0;
-				} else{
-					res = 2;
+				//If the first first field is a wall, return 1
+				} else if(staticMap[self.position.y][self.position.x+1] == WALL_CLASS_ID){
+					res = 1;
+				}
+				//Loop over all fields in the east of the rover
+				//If an unkown field is found before a wall return 0
+				//If a wall is found before an unkown field return 2 
+				for(int tmpX = self.position.x+1; tmpX < mapWidth; tmpX++){
+					if (staticMap[self.position.y][tmpX] == 0){
+						res = 0;
+					} else if (staticMap[self.position.y][tmpX] == WALL_CLASS_ID ){
+						res = 2;
+					}
 				}
 			case SOUTH:
-				if (staticMap[self.position.y][self.position.x+1] == WALL_CLASS_ID){
-					res = 1;
-				} else if (staticMap[self.position.y][self.position.x+1] == 0){
+				//If the first first field is unkown, return 0
+				if(staticMap[self.position.y+1][self.position.x] == 0){
 					res = 0;
-				} else{
-					res = 2;
+				//If the first first field is a wall, return 1
+				} else if(staticMap[self.position.y+1][self.position.x] == WALL_CLASS_ID){
+					res = 1;
+				}
+				//Loop over all fields in the south of the rover
+				//If an unkown field is found before a wall return 0
+				//If a wall is found before an unkown field return 2 
+				for(int tmpY = self.position.y+1; tmpY <mapHeight; tmpY++){
+					if (staticMap[tmpY][self.position.x] == 0){
+						res = 0;
+					} else if (staticMap[tmpY][self.position.x] == WALL_CLASS_ID ){
+						res = 2;
+					}
 				}
 			case WEST:
-				if (staticMap[self.position.y+1][self.position.x] == WALL_CLASS_ID){
-					res = 1;
-				} else if (staticMap[self.position.y+1][self.position.x] == 0){
+				//If the first first field is unkown, return 0
+				if(staticMap[self.position.y][self.position.x-1] == 0){
 					res = 0;
-				} else{
-					res = 2;
+				//If the first first field is a wall, return 1
+				} else if(staticMap[self.position.y][self.position.x-1] == WALL_CLASS_ID){
+					res = 1;
 				}
+				//Loop over all fields in the west of the rover
+				//If an unkown field is found before a wall return 0
+				//If a wall is found before an unkown field return 2 
+				for(int tmpX = self.position.x-1; tmpX > 0; tmpX--){
+					if (staticMap[self.position.y][tmpX] == 0){
+						res = 0;
+					} else if (staticMap[self.position.y][tmpX] == WALL_CLASS_ID ){
+						res = 2;
+					}
+				}
+			default:
+				//Wird nie errreicht
 		}
 		return res;
 	}
