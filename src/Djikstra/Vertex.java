@@ -1,3 +1,5 @@
+package Djikstra;
+
 public class Vertex{
     private String id;
     private boolean mark;

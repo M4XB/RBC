@@ -70,9 +70,9 @@ public class RoMax_Roamer extends Creature {
     		//When the rover sees the treasure, its going to hit it
     		seeTreasure();
     		if (moveForward()) {
-    			reportRoverPos();
+				reportRoverPos();
+				
     			turnLeft();
-    			
     			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
     				turnRight();
         			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
@@ -100,22 +100,20 @@ public class RoMax_Roamer extends Creature {
 //#region "Observing the area around the rover"
    
     //Returns an object of th class the rover is looking at and fills static map
-    private Observation observeObject() {
+    private void observeObject() {
     	obs = observe()[0];
     	staticMap[obs.position.y][obs.position.x] = obs.classId;
-    	return obs;
     }
 	
 	//Returns an object of the current position of the rover
-    private Observation observateSelf() {
+    private void observateSelf() {
     	self = observeSelf();
-    	return self;
     }
     
     //checks if rover is standing in front of the object
     private boolean isObjectInFrontOfYou(int classId) {
-		Observation observe = observeObject();
-		if (observe.classId == classId && distance(observe.position) == 1) {
+		observeObject();
+		if (obs.classId == classId && distance(obs.position) == 1) {
     		return true;
     	} else {
     		return false;
@@ -124,8 +122,8 @@ public class RoMax_Roamer extends Creature {
 	
     //checks if rover is seeing the treasure
     private void seeTreasure() {
-		Observation possibleTreasure = observeObject();
-    	if (possibleTreasure.classId  == TREASURE_CLASS_ID) {
+		observeObject();
+    	if (obs.classId  == TREASURE_CLASS_ID) {
     		moveForward(distance(obs.position)-1);
 			attack();
     	}
@@ -154,7 +152,7 @@ public class RoMax_Roamer extends Creature {
 	
 	//lets Rover rotate in one cardinal direction
 	private void rotateRover(Direction wantedDirection){
-		self = observateSelf();
+		observateSelf();
 		Direction selfDirection = self.direction;
 		//If rover is looking in the right Directions quit 
 		if (selfDirection ==  wantedDirection) return;
@@ -203,11 +201,99 @@ public class RoMax_Roamer extends Creature {
 				}
 		}
 	}
-    
+	
+	/**
+	 * Checks with the static map, if a wall is in front of the rover
+	 * @return 1 if Wall, 0 if unknown, 2 everything else
+	 */
+	private int isWallFront(){
+		observateSelf();
+		int res = 0;
+		switch (self.direction){
+			case NORTH:
+				if (staticMap[self.position.y-1][self.position.x] == WALL_CLASS_ID){
+					res = 1;
+				} else if(staticMap[self.position.y-1][self.position.x] == 0) {
+					res = 0;
+				} else{
+					res = 2;
+				}
+			case EAST:
+				if (staticMap[self.position.y][self.position.x+1] == WALL_CLASS_ID){
+					res = 1;
+				}else if (staticMap[self.position.y][self.position.x+1] == 0){
+					res = 0;
+				} else{
+					res = 2;
+				}
+			case SOUTH:
+				if (staticMap[self.position.y+1][self.position.x+1] == WALL_CLASS_ID){
+					res = 1;
+				} else if (staticMap[self.position.y+1][self.position.x] == 0){
+					res = 0;
+				} else{
+					res = 2;
+				}
+			case WEST:
+				if (staticMap[self.position.y][self.position.x-1] == WALL_CLASS_ID){
+					res = 1;
+				} else if (staticMap[self.position.y][self.position.x-1] == 0){
+					res = 0;
+				} else{
+					res = 2;
+				}
+		}
+		return res;
+	}
+
+	/**
+	 * Checks with the static map, if a wall is left of the rover
+	 * @return 1 if Wall, 0 if unknown, 2 everything else
+	 */
+	private int isWallLeft(){
+		observateSelf();
+		int res = 0;
+		switch (self.direction){
+			case NORTH:
+				if (staticMap[self.position.y][self.position.x-1] == WALL_CLASS_ID){
+					res = 1;
+				} else if(staticMap[self.position.y][self.position.x-1] == 0) {
+					res = 0;
+				} else{
+					res = 2;
+				}
+			case EAST:
+				if (staticMap[self.position.y-1][self.position.x] == WALL_CLASS_ID){
+					res = 1;
+				}else if (staticMap[self.position.y-1][self.position.x] == 0){
+					res = 0;
+				} else{
+					res = 2;
+				}
+			case SOUTH:
+				if (staticMap[self.position.y][self.position.x+1] == WALL_CLASS_ID){
+					res = 1;
+				} else if (staticMap[self.position.y][self.position.x+1] == 0){
+					res = 0;
+				} else{
+					res = 2;
+				}
+			case WEST:
+				if (staticMap[self.position.y+1][self.position.x] == WALL_CLASS_ID){
+					res = 1;
+				} else if (staticMap[self.position.y+1][self.position.x] == 0){
+					res = 0;
+				} else{
+					res = 2;
+				}
+		}
+		return res;
+	}
+
     //checks if enemy is in range to attack
     private void enemyInSight(){	
-		Observation enemy = observeObject();
-    	int enemyDistance = distance(enemy.position);
+		observeObject();
+    	int enemyDistance = distance(obs.position);
 		if(enemyDistance == 2){
 			delay();
 		} else if(enemyDistance == 1){
@@ -248,6 +334,7 @@ public class RoMax_Roamer extends Creature {
     
     //Prints out up-to-date map in the console
     private void printMap() {
+		if (debugMode) return;
     	for (int y=0; y<mapHeight; y++) {
     		for (int x=0; x<mapWidth; x++) {
     			
@@ -281,12 +368,12 @@ public class RoMax_Roamer extends Creature {
     		} // new line in map
     		System.out.println();
     	} // empty line after map
-    	System.out.println("");
+		System.out.println("");
     }
     
     //saves current rover position in map
     private void reportRoverPos() {
-		self = observateSelf();
+		observateSelf();
 		mobileMap[self.position.y][self.position.x] = 1;
 		if (debugMode){
 			log("roamer ist at " + " x=" + self.position.x + " y=" + self.position.y);
