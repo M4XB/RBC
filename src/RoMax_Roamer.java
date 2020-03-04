@@ -71,18 +71,28 @@ public class RoMax_Roamer extends Creature {
     		seeTreasure();
     		if (moveForward()) {
 				reportRoverPos();
-				
-    			turnLeft();
-    			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
-    				turnRight();
-        			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
-        				turnRight();
-        			}	
-        		}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
-        			move(1);
-        		}else {
-    				turnLeft();
-    			}
+				if (isWallLeft() == 1){
+					if (isWallFront() == 1){
+						turnRight();
+					} else{
+						if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+							turnRight();
+						}
+					}
+				} else if (isWallLeft() == 0){
+					turnLeft();
+    				if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    					turnRight();
+        				if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        					turnRight();
+        				}	
+        			} else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        				move(1);
+        			}else {
+    					turnLeft();
+    				}
+				}
+    			
     		}else {
     			turnLeft();
     			if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
@@ -334,7 +344,7 @@ public class RoMax_Roamer extends Creature {
     
     //Prints out up-to-date map in the console
     private void printMap() {
-		if (debugMode) return;
+		if (!debugMode) return;
     	for (int y=0; y<mapHeight; y++) {
     		for (int x=0; x<mapWidth; x++) {
     			
