@@ -4,14 +4,14 @@ import Djikstra.*;
 public class RoMax_Roamer extends Creature {
 	
 	// set this to false to disable extended console logging & save resources
-	private boolean debugMode = true;
+	private boolean debugMode = false;
 	
 	// contains all static entities
 	private int[][] staticMap;
 	// contains rover and enemy positions
 	private int[][] mobileMap;
 
-	private Algorithms algorithms = new Algorithms();
+	//private Algorithms algorithms = new Algorithms();
 	
 	int mapWidth;
 	int mapHeight;
@@ -27,8 +27,8 @@ public class RoMax_Roamer extends Creature {
 		
     	mapGen();
     	printMap();
-		//easyLogic();
-		easyLogicMapUsing();
+		easyLogic();
+		//easyLogicMapUsing();
 		
     }
     
@@ -41,14 +41,14 @@ public class RoMax_Roamer extends Creature {
     	mobileMap = new int[mapHeight][mapWidth];
     	
     	//fill static map at edge with wall
-    	for (int y=0; y< mapHeight; y++) {
+    	/*for (int y=0; y< mapHeight; y++) {
     		staticMap[y][0] = WALL_CLASS_ID;
     		staticMap[y][mapWidth-1] = WALL_CLASS_ID;
     	}
     	for (int x=0; x< mapWidth; x++) {
     		staticMap[0][x] = WALL_CLASS_ID;
     		staticMap[mapHeight-1][x] = WALL_CLASS_ID;
-    	}
+    	}*/
     	
     }
     
@@ -59,7 +59,7 @@ public class RoMax_Roamer extends Creature {
 		//turns around and checks if the rover    	
 		spinMyHeadRightRound();
 		reportRoverPos();
-    	if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    	if (isObjectInFrontOfYou(WALL_CLASS_ID) || isObjectInFrontOfYou(HAZARD_CLASS_ID)){
     		turnRight();
     	}else {
     		move(distance(obs.position)-1);
@@ -68,24 +68,26 @@ public class RoMax_Roamer extends Creature {
     	while(true) {
     		
     		//When the rover sees the treasure, its going to hit it
-    		seeTreasure();
-    		if (moveForward()) {
+			seeTreasure();
+			enemyInSight();
+    		if (!isObjectInFrontOfYou(WALL_CLASS_ID) || !isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
+				move(1);
     			reportRoverPos();
     			turnLeft();
     			
-    			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    			if (isObjectInFrontOfYou(WALL_CLASS_ID) || isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
     				turnRight();
-        			if (isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        			if (isObjectInFrontOfYou(WALL_CLASS_ID) || isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
         				turnRight();
         			}	
-        		}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+        		}else if (!isObjectInFrontOfYou(WALL_CLASS_ID)|| !isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
         			move(1);
         		}else {
     				turnLeft();
     			}
     		}else {
     			turnLeft();
-    			if (!isObjectInFrontOfYou(WALL_CLASS_ID)) {
+    			if (!isObjectInFrontOfYou(WALL_CLASS_ID) || !isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
     				move(1);
     			}else {
     				turnLeft();
