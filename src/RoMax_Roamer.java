@@ -71,8 +71,7 @@ public class RoMax_Roamer extends Creature {
 			seeTreasure();
 			enemyInSight();
     		if (!isObjectInFrontOfYou(WALL_CLASS_ID) || !isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
-				move(1);
-    			reportRoverPos();
+				move(1); 
     			turnLeft();
     			
     			if (isObjectInFrontOfYou(WALL_CLASS_ID) || isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
@@ -86,12 +85,13 @@ public class RoMax_Roamer extends Creature {
     				turnLeft();
     			}
     		}else {
-    			turnLeft();
+				turnLeft();
+				enemyInSight();
     			if (!isObjectInFrontOfYou(WALL_CLASS_ID) || !isObjectInFrontOfYou(HAZARD_CLASS_ID)) {
     				move(1);
     			}else {
-    				turnLeft();
-    				turnLeft();
+					turnLeft();
+					enemyInSight();
     			}
     		}
     	}
@@ -421,9 +421,6 @@ public class RoMax_Roamer extends Creature {
 			delay();
 		} else if(enemyDistance == 1){
 			attack();
-		}else{
-			moveForward();
-			reportRoverPos();
 		}
     }
     

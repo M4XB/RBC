@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "type": "java",
             "name": "Debug (Launch) - Current File",
@@ -74,6 +75,14 @@
             "mainClass": "Darwin",
             "projectName": "Darwin",
             "args": "-3D -nosecurity Maps/mz_cls_2 RoMax_Roamer"
+        },
+        {
+            "type": "java",
+            "name": "CLS 1 Wolf",
+            "request": "launch",
+            "mainClass": "Darwin",
+            "projectName": "Darwin",
+            "args": "-3D -nosecurity Maps/mz_cls_1 WolfMM"
         }
     ]
 }
